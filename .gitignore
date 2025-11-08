@@ -151,3 +151,7 @@ cython_debug/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Models
+/models/audio/vosk/*
+!/models/audio/vosk/README.md
