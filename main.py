@@ -15,13 +15,14 @@ load_dotenv()
 # Configuration
 HA_URL = os.getenv("HA_URL", "")
 HA_TOKEN = os.getenv("HA_TOKEN", "")
+TEXT_TO_SPEECH_VOICE_ENGINE_ID = os.getenv("TEXT_TO_SPEECH_VOICE_ENGINE_ID", "")
 
 
 def main():
     print("Running Home Assistant Voice Console. Type your message and press Enter.")
 
     text_to_speech_api: HATextToSpeechAPI = HATextToSpeechAPI(HA_URL, HA_TOKEN)
-    text_to_speech_api.speak("google_translate_en_com", "Working Text-to-Speech integration.")
+    text_to_speech_api.speak(TEXT_TO_SPEECH_VOICE_ENGINE_ID, "Working Text-to-Speech integration.")
 
 
 if __name__ == "__main__":
