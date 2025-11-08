@@ -5,8 +5,6 @@ Type text to be sent to Jaakko 1 voice assistant via conversation service.
 """
 
 import os
-import requests
-import sys
 from dotenv import load_dotenv
 
 from home_assistant_api.text_to_speech.text_to_speech import HATextToSpeechAPI
@@ -23,7 +21,7 @@ def main():
     print("Running Home Assistant Voice Console. Type your message and press Enter.")
 
     text_to_speech_api: HATextToSpeechAPI = HATextToSpeechAPI(HA_URL, HA_TOKEN)
-    text_to_speech_api.speak("google_translate_en_com", "Hi! How can I help you?")
+    text_to_speech_api.speak("google_translate_en_com", "Working Text-to-Speech integration.")
 
 
 if __name__ == "__main__":

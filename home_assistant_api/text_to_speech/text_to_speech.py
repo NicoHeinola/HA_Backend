@@ -1,9 +1,10 @@
 import logging
 import requests
-import subprocess
 import tempfile
 import os
 
+from helpers.audio.audio_mixer_helper import AudioMixerHelper
+from helpers.audio.audio_playback_helper import AudioPlaybackHelper
 from home_assistant_api.home_assistant_api import HomeAssistantAPI
 
 logger = logging.getLogger(__name__)
@@ -46,6 +47,11 @@ class HATextToSpeechAPI(HomeAssistantAPI):
             tmp_file_path = tmp_file.name
 
         try:
-            print("Running audio!")
+            AudioMixerHelper.speed_up_audio(
+                input_file_path=tmp_file_path,
+                output_file_path=tmp_file_path,
+                speed=1.2,
+            )
+            AudioPlaybackHelper.play_audio(tmp_file_path)
         finally:
             os.unlink(tmp_file_path)
