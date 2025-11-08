@@ -1,5 +1,5 @@
 # Home Assistant specific
-/home_assistant_config
+/home_assistant_config/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

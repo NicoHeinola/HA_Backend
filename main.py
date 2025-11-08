@@ -9,8 +9,6 @@ import os
 from dotenv import load_dotenv
 
 from application.application import Application
-from home_assistant_api.text_to_speech.text_to_speech_api import HATextToSpeechAPI
-from home_assistant_api.wiz.wiz_lights_api import HAWizLightsAPI
 
 # Load environment variables
 load_dotenv()

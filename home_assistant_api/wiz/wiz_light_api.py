@@ -5,7 +5,7 @@ from home_assistant_api.home_assistant_api import HomeAssistantAPI
 logger = logging.getLogger(__name__)
 
 
-class HAWizLightsAPI(HomeAssistantAPI):
+class HAWizLightAPI(HomeAssistantAPI):
     """Home Assistant Wiz Lights integration"""
 
     def __init__(self, ha_url: str, access_token: str):
@@ -20,6 +20,12 @@ class HAWizLightsAPI(HomeAssistantAPI):
         """Turn on a Wiz light."""
         response: requests.Response = self._call_service("light", "turn_on", {"entity_id": f"light.{entity_id}"})
         return response.status_code == 200
+
+    def toggle(self, entity_id: str) -> bool:
+        """Toggle a Wiz light."""
+        light_state: dict = self.get_light_state(entity_id)
+        print("STATE RESPONSE", light_state)
+        return True
 
     def set_rgb_color(self, entity_id: str, r: int, g: int, b: int) -> bool:
         """Set the RGB color of a Wiz light."""
