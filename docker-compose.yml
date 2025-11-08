@@ -9,8 +9,8 @@ services:
     environment:
       - TZ=UTC
     volumes:
-      - ./config:/config
+      - ./home_assistant_config:/config
       - /run/dbus:/run/dbus:ro
     devices:
-      - /dev/ttyUSB0:/dev/ttyUSB0
+      - /dev/ttyUSB0:/dev/ttyUSB0 # Sonoff Zigbee 3.0 USB adapter
     network_mode: host
