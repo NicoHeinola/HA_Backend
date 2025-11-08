@@ -12,5 +12,5 @@ services:
       - ./home_assistant_config:/config
       - /run/dbus:/run/dbus:ro
     devices:
-      - /dev/ttyUSB0:/dev/ttyUSB0 # Sonoff Zigbee 3.0 USB adapter
+      - ${ZIGBEE_DEVICE:-/dev/ttyUSB0}:${ZIGBEE_DEVICE:-/dev/ttyUSB0} # Sonoff Zigbee 3.0 USB adapter
     network_mode: host
