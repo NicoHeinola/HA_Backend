@@ -6,6 +6,7 @@ Provides offline speech recognition without internet connection
 
 import logging
 import os
+import sys
 import pyaudio
 from vosk import Model, KaldiRecognizer
 

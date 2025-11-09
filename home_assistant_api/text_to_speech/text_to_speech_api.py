@@ -28,7 +28,7 @@ class HATextToSpeechAPI(HomeAssistantAPI):
         response = requests.post(f"{self._ha_url}/api/tts_get_url", json=payload, headers=headers)
         return response
 
-    def speak(self, engine_id: str, message: str) -> None:
+    def speak(self, engine_id: str, message: str, speed: float = 1.0) -> None:
         """Make Home Assistant speak a message using TTS."""
 
         tts_url_response: requests.Response = self.generate_tts_url(engine_id, message)
@@ -50,7 +50,7 @@ class HATextToSpeechAPI(HomeAssistantAPI):
             AudioMixerHelper.speed_up_audio(
                 input_file_path=tmp_file_path,
                 output_file_path=tmp_file_path,
-                speed=1.2,
+                speed=speed,
             )
             AudioPlaybackHelper.play_audio(tmp_file_path)
         finally:
