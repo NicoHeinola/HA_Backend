@@ -77,7 +77,7 @@ class VoskSpeechToTextHelper:
         elapsed_time = 0
         start_time = os.times()[4]
 
-        logger.debug("Listening for speech...")
+        logger.info("Listening for speech...")
         result = ""
         while (elapsed_time < duration_seconds and duration_seconds > 0) or (duration_seconds == 0 and result == ""):
             data = stream.read(4096, exception_on_overflow=False)
@@ -100,7 +100,7 @@ def main():
     try:
         stt = VoskSpeechToTextHelper("vosk-model-small-en-us-0.15")
         text = stt.listen_and_transcribe(duration_seconds=0)
-        logger.debug(f"Transcribed Text: {text}")
+        logger.info(f"Transcribed Text: {text}")
     except FileNotFoundError as e:
         logger.error(e)
 

@@ -1,8 +1,3 @@
-from helpers.audio.vosk_speech_to_text_helper import VoskSpeechToTextHelper
-from helpers.models.text_prediction.gguf.gguf_text_prediction_model import GGUFTextPredictionModel
-from home_assistant_api.text_to_speech.text_to_speech_api import HATextToSpeechAPI
-from home_assistant_api.wiz.wiz_light_api import HAWizLightAPI
-
 import logging
 import os
 from dotenv import load_dotenv
@@ -13,6 +8,12 @@ from home_assistant_api.wiz import wiz_light_api
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]: %(message)s")
+
+from helpers.audio.vosk_speech_to_text_helper import VoskSpeechToTextHelper
+from helpers.models.text_prediction.gguf.gguf_text_prediction_model import GGUFTextPredictionModel
+from home_assistant_api.text_to_speech.text_to_speech_api import HATextToSpeechAPI
+from home_assistant_api.wiz.wiz_light_api import HAWizLightAPI
+
 
 # Load environment variables
 load_dotenv()
@@ -43,8 +44,14 @@ You are a helpful home assistant AI. Your job is to interpret user requests and 
         "name": "lights.turn_on",
         "description": "Turns all lights on in the house",
         "params": {
-            "entity_id": "Optional specific light entity ID to turn on"
+            "entity_id": "Optional specific light entity ID to turn on",
+            "allowed_values": ["wiz_lamp_kitchen_1", "wiz_lamp_bed_1", "wiz_lamp_mirror_1", "wiz_lamp_workstation_1"]
         }
+    },
+    {
+        "name": "just_chatting",
+        "description": "This action is used when the user is just chatting other actions don't fit. Be very friendly and engaging in your response. Don't ask the user for more information, just do as they say.",
+        "params": {}
     }
 ]
 
@@ -53,6 +60,8 @@ For each user request, respond with a JSON object containing keys:
 - "ai_answer": A creative, helpful, and friendly response confirming or explaining the action, e.g., "Sure thing! Turning off the lights now." or "Got it, all lights are off!"
 - "params": An object containing any required parameters for the action (or empty object if none).
 - "allowed_values" Sometimes user mistypes the entity_id, so please choose the closest matching entity_id from the allowed values.
+- just_chatting action does not require any parameters. Put all your friendly responses in the "ai_answer" field.
+
 
 Wrap the entire JSON response in a code block like ```json
 {
@@ -62,8 +71,9 @@ Wrap the entire JSON response in a code block like ```json
         "entity_id": "wiz_lamp_bed_1"
     }
 }
+```
 
-When you think you are done. Put <!DONE!> after the code block.
+When you think you are done. Remember to end code blocks with "```" and start code blocks with "```json". Remember to add "," after each key-value pair in the JSON object and ensure proper JSON formatting.
 """
 
 tts_api: HATextToSpeechAPI = HATextToSpeechAPI(ha_url=HA_URL, access_token=HA_TOKEN)
@@ -74,25 +84,26 @@ stt_api: VoskSpeechToTextHelper = VoskSpeechToTextHelper("vosk-model-small-en-us
 while True:
 
     # Listen to microphone and get user input
-    logger.info("Listening for user input...")
     user_input: str = stt_api.listen_and_transcribe()
     # user_input: str = input("Enter your prompt: ")
-    # user_input: str = "hi i would like you to turn off the bat lamp"
+    # user_input: str = "could you write me a very short poem"
     logger.info(f"User Input: {user_input}")
 
-    model = GGUFTextPredictionModel(model_name=model_name, system_prompt=system_prompt)
+    model = GGUFTextPredictionModel(model_name=model_name, system_prompt=system_prompt, max_tokens=128 * 2)
     prediction = model.predict(user_input)
 
     # logger.info("Prediction:")
     # logger.info("-------")
 
-    prediction = prediction.split("<!DONE!>")[0].split("!<DONE>")[0].strip()
+    prediction = prediction.split("<!DONE!>")[0].split("!<DONE>")[0].strip().lower()
 
-    # Remove ```json and ``` if present
-    if prediction.startswith("```json"):
-        prediction = prediction[len("```json") :].strip()
-    if prediction.endswith("```"):
-        prediction = prediction[: -len("```")].strip()
+    # Remove everything before ```json
+    if "```json" in prediction:
+        prediction = prediction.split("```json", 1)[1].strip()
+
+    # Remove everything after the closing ```
+    if "```" in prediction:
+        prediction = prediction.split("```", 1)[0].strip()
 
     logger.info(f"Prediction:\n------\n{prediction}\n------")
 
@@ -104,7 +115,7 @@ while True:
         prediction_json = {}
 
     action = prediction_json.get("action", None)
-    answer = prediction_json.get("AI_ANSWER", "Sorry, I don't quite understand.")
+    answer = prediction_json.get("ai_answer", "Sorry, I don't quite understand.")
     params = prediction_json.get("params", {})
 
     print("Action:", action)
@@ -131,7 +142,7 @@ while True:
             for lamp in all_lamps:
                 ha_wiz_light_api.turn_on(entity_id=lamp)
 
-    # tts_api.speak(engine_id=TEXT_TO_SPEECH_VOICE_ENGINE_ID, message=answer, speed=1.5)
+    tts_api.speak(engine_id=TEXT_TO_SPEECH_VOICE_ENGINE_ID, message=answer, speed=1.2)
 
     model = None  # Free up resources
     break

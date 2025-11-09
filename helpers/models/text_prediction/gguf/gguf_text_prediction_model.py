@@ -3,11 +3,13 @@ from llama_cpp import Llama
 
 
 class GGUFTextPredictionModel(TextPredictionModel):
-    def __init__(self, model_name: str, system_prompt: str = ""):
+    def __init__(self, model_name: str, system_prompt: str = "", *args, **kwargs):
         super().__init__(model_name, system_prompt)
 
         self._model_folder: str = "gguf"
         self._model: Llama = self.load_model()
+
+        self._max_tokens: int = kwargs.get("max_tokens", 128)
 
     def load_model(self) -> Llama:
         model: Llama = Llama(
@@ -26,7 +28,7 @@ class GGUFTextPredictionModel(TextPredictionModel):
         prompt = self._get_prompt_text(text)
 
         model: Llama = self._model
-        output = model(prompt, max_tokens=128, temperature=0.0, stop=["<|User|>", "<|User|}>"])
+        output = model(prompt, max_tokens=self._max_tokens, temperature=0.0, stop=["<|User|>", "<|User|}>"])
 
         if not isinstance(output, dict):
             return ""
