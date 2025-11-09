@@ -26,7 +26,7 @@ class GGUFTextPredictionModel(TextPredictionModel):
         prompt = self._get_prompt_text(text)
 
         model: Llama = self._model
-        output = model(prompt, max_tokens=128, temperature=0.0, stop=["User:", "\nUser:"])
+        output = model(prompt, max_tokens=128, temperature=0.0, stop=["<|User|>", "<|User|}>"])
 
         if not isinstance(output, dict):
             return ""

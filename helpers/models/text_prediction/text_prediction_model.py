@@ -24,7 +24,7 @@ class TextPredictionModel(ABC):
         return model_path
 
     def _get_prompt_text(self, user_input: str) -> str:
-        return "{system_prompt}\nUser: {user_input}\nAssistant:".format(
+        return '<|System|>"{system_prompt}"\n<|User|>"{user_input}"\n<|Assistant|>"'.format(
             system_prompt=self._system_prompt, user_input=user_input
         )
 
