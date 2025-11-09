@@ -155,3 +155,5 @@ Desktop.ini
 # Models
 /models/audio/vosk/*
 !/models/audio/vosk/README.md
+/models/text_prediction/gguf/*
+!/models/text_prediction/gguf/README.md

@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException, Body
 from fastapi.responses import JSONResponse
 import uvicorn
 
-from application.eventable import Eventable
+from helpers.common.eventable import Eventable
 
 logger = logging.getLogger(__name__)
 
