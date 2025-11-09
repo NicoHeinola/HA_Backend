@@ -26,34 +26,50 @@ WEB_SERVER_PORT = int(os.getenv("WEB_SERVER_PORT", ""))
 TEXT_TO_SPEECH_VOICE_ENGINE_ID = os.getenv("TEXT_TO_SPEECH_VOICE_ENGINE_ID", "")
 
 model_name: str = "Phi-3-mini-4k-instruct-q4.gguf"
-system_prompt: str = """
-You are a helpful home assistant AI. Your job is to interpret user requests and map them to the best fitting action from the following list of available actions:
 
-[
+actions: list = [
     {
         "name": "lights.turn_off",
         "description": "Turns all lights off in the house",
         "params": {
             "entity_id": {
                 "description": "Optional specific light entity ID to turn off",
-                "allowed_values": ["wiz_lamp_kitchen_1", "wiz_lamp_bed_1", "wiz_lamp_mirror_1", "wiz_lamp_workstation_1"]
+                "allowed_values": [
+                    "wiz_lamp_kitchen_1",
+                    "wiz_lamp_bed_1",
+                    "wiz_lamp_mirror_1",
+                    "wiz_lamp_workstation_1",
+                ],
             }
-        }
+        },
     },
     {
         "name": "lights.turn_on",
         "description": "Turns all lights on in the house",
         "params": {
-            "entity_id": "Optional specific light entity ID to turn on",
-            "allowed_values": ["wiz_lamp_kitchen_1", "wiz_lamp_bed_1", "wiz_lamp_mirror_1", "wiz_lamp_workstation_1"]
-        }
+            "entity_id": {
+                "description": "Optional specific light entity ID to turn on",
+                "allowed_values": [
+                    "wiz_lamp_kitchen_1",
+                    "wiz_lamp_bed_1",
+                    "wiz_lamp_mirror_1",
+                    "wiz_lamp_workstation_1",
+                ],
+            }
+        },
     },
     {
         "name": "just_chatting",
         "description": "This action is used when the user is just chatting other actions don't fit. Be very friendly and engaging in your response. Don't ask the user for more information, just do as they say.",
-        "params": {}
-    }
+        "params": {},
+    },
 ]
+
+system_prompt: str = (
+    """
+You are a helpful home assistant AI. Your job is to interpret user requests and map them to the best fitting action from the following list of available actions:
+
+{actions_list}
 
 For each user request, respond with a JSON object containing keys:
 - "action": The name of the best matching action from the list above (or null if no match).
@@ -64,17 +80,20 @@ For each user request, respond with a JSON object containing keys:
 
 
 Wrap the entire JSON response in a code block like ```json
-{
+{{
   "action": "lights.turn_off",
   "ai_answer": "Yes, I'll turn off the lights for you!",
-  "params": {
+  "params": {{
         "entity_id": "wiz_lamp_bed_1"
-    }
-}
+    }}
+}}
 ```
 
 When you think you are done. Remember to end code blocks with "```" and start code blocks with "```json". Remember to add "," after each key-value pair in the JSON object and ensure proper JSON formatting.
-"""
+""".format(
+        actions_list=json.dumps(actions, indent=2)
+    )
+)
 
 tts_api: HATextToSpeechAPI = HATextToSpeechAPI(ha_url=HA_URL, access_token=HA_TOKEN)
 ha_wiz_light_api: HAWizLightAPI = HAWizLightAPI(ha_url=HA_URL, access_token=HA_TOKEN)
@@ -142,7 +161,7 @@ while True:
             for lamp in all_lamps:
                 ha_wiz_light_api.turn_on(entity_id=lamp)
 
-    tts_api.speak(engine_id=TEXT_TO_SPEECH_VOICE_ENGINE_ID, message=answer, speed=1.2)
+    tts_api.speak(engine_id=TEXT_TO_SPEECH_VOICE_ENGINE_ID, message=answer, speed=1.1)
 
     model = None  # Free up resources
     break
