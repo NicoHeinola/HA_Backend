@@ -6,11 +6,15 @@ Provides offline speech recognition without internet connection
 
 import logging
 import os
-import sys
+
 import pyaudio
-from vosk import Model, KaldiRecognizer
+from vosk import Model, KaldiRecognizer, SetLogLevel
+
+
+SetLogLevel(-1)
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s [%(levelname)s]: %(message)s")
 
 
 class VoskSpeechToTextHelper:
@@ -41,6 +45,23 @@ class VoskSpeechToTextHelper:
         self._model = Model(model_path)
         self._recognizer = KaldiRecognizer(self._model, 16000)
 
+    def _open_microphone_stream(self) -> pyaudio.Stream:
+        """Open microphone audio stream for recording"""
+
+        # Suppress ALSA and audio device warnings during PyAudio instantiation
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        old_stderr_fd = os.dup(2)
+        os.dup2(devnull, 2)
+        try:
+            mic: pyaudio.PyAudio = pyaudio.PyAudio()
+            stream = mic.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=8192)
+        finally:
+            os.dup2(old_stderr_fd, 2)
+            os.close(devnull)
+            os.close(old_stderr_fd)
+
+        return stream
+
     def listen_and_transcribe(self, duration_seconds: int = 0) -> str:
         """
         Listen to microphone input and transcribe speech to text
@@ -49,8 +70,7 @@ class VoskSpeechToTextHelper:
             duration_seconds: Duration to listen in seconds. 0 means listen until something is detected.
         """
 
-        mic: pyaudio.PyAudio = pyaudio.PyAudio()
-        stream = mic.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=8192)
+        stream: pyaudio.Stream = self._open_microphone_stream()
         stream.start_stream()
 
         elapsed_time = 0
