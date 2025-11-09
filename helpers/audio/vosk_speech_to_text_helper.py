@@ -4,6 +4,7 @@ Local Speech-to-Text Helper using Vosk
 Provides offline speech recognition without internet connection
 """
 
+import json
 import logging
 import os
 
@@ -85,7 +86,8 @@ class VoskSpeechToTextHelper:
                 break
 
             if self._recognizer.AcceptWaveform(data):
-                result = self._recognizer.Result()
+                parsed_result = json.loads(self._recognizer.Result())
+                result = parsed_result.get("text", "")
 
             elapsed_time = os.times()[4] - start_time
 
