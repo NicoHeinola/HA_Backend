@@ -1,10 +1,11 @@
 import logging
 import os
+from time import sleep
 from dotenv import load_dotenv
 import json
 
+from helpers.keyboard import keyboard_helper
 from home_assistant_api.wiz import wiz_light_api
-
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s]: %(message)s")
@@ -13,6 +14,9 @@ from helpers.audio.vosk_speech_to_text_helper import VoskSpeechToTextHelper
 from helpers.models.text_prediction.gguf.gguf_text_prediction_model import GGUFTextPredictionModel
 from home_assistant_api.text_to_speech.text_to_speech_api import HATextToSpeechAPI
 from home_assistant_api.wiz.wiz_light_api import HAWizLightAPI
+from helpers.keyboard.keyboard_helper import KeybboardHelper
+
+# keyboard.press("w")  # Test keyboard import
 
 
 # Load environment variables
@@ -24,6 +28,9 @@ HA_TOKEN = os.getenv("HA_TOKEN", "")
 WEB_SERVER_HOST = os.getenv("WEB_SERVER_HOST", "")
 WEB_SERVER_PORT = int(os.getenv("WEB_SERVER_PORT", ""))
 TEXT_TO_SPEECH_VOICE_ENGINE_ID = os.getenv("TEXT_TO_SPEECH_VOICE_ENGINE_ID", "")
+
+KEYBOARD_SERVER_HOST = os.getenv("KEYBOARD_SERVER_HOST", "")
+KEYBOARD_SERVER_PORT = int(os.getenv("KEYBOARD_SERVER_PORT", ""))
 
 model_name: str = "Phi-3-mini-4k-instruct-q4.gguf"
 
@@ -55,6 +62,40 @@ actions: list = [
                     "wiz_lamp_mirror_1",
                     "wiz_lamp_workstation_1",
                 ],
+            }
+        },
+    },
+    {
+        "name": "keyboard.hold",
+        "description": "Holds down a specific keyboard key on the user's computer. Useful for gaming or productivity tasks. Useful for car games.",
+        "params": {
+            "key": {
+                "description": "The key to press. W for forward, A for left, S for backward, D for right, enter, space, ctrl",
+                "allowed_values": ["w", "a", "s", "d", "enter", "space", "ctrl"],
+            }
+        },
+    },
+    {
+        "name": "keyboard.press",
+        "description": "Presses a specific keyboard key on the user's computer. Useful for car games.",
+        "params": {
+            "key": {
+                "description": "The key to press. W for forward, A for left, S for backward, D for right, enter, space, ctrl",
+                "allowed_values": ["w", "a", "s", "d", "enter", "space", "ctrl"],
+            },
+            "duration_seconds": {
+                "description": "duration_seconds in seconds to hold the key down",
+                "allowed_values": "any positive number",
+            },
+        },
+    },
+    {
+        "name": "keyboard.release",
+        "description": "Releases a specific keyboard key on the user's computer. Useful for car games.",
+        "params": {
+            "key": {
+                "description": "The key to release. W for forward, A for left, S for backward, D for right, enter, space, ctrl",
+                "allowed_values": ["w", "a", "s", "d", "enter", "space", "ctrl"],
             }
         },
     },
@@ -97,13 +138,20 @@ When you think you are done. Remember to end code blocks with "```" and start co
 
 tts_api: HATextToSpeechAPI = HATextToSpeechAPI(ha_url=HA_URL, access_token=HA_TOKEN)
 ha_wiz_light_api: HAWizLightAPI = HAWizLightAPI(ha_url=HA_URL, access_token=HA_TOKEN)
+keyboard_helper_api: KeybboardHelper = KeybboardHelper(host=KEYBOARD_SERVER_HOST, port=KEYBOARD_SERVER_PORT)
 
 stt_api: VoskSpeechToTextHelper = VoskSpeechToTextHelper("vosk-model-small-en-us-0.15")
+
+start_keyword: str = ""
 
 while True:
 
     # Listen to microphone and get user input
     user_input: str = stt_api.listen_and_transcribe()
+    if not user_input.lower().startswith(start_keyword.lower()):
+        logger.info("Start keyword not detected in user input. Ignoring input. Input: " + user_input)
+        continue
+
     # user_input: str = input("Enter your prompt: ")
     # user_input: str = "could you write me a very short poem"
     logger.info(f"User Input: {user_input}")
@@ -160,8 +208,21 @@ while True:
             logger.info("Turning on all lights")
             for lamp in all_lamps:
                 ha_wiz_light_api.turn_on(entity_id=lamp)
+    elif action == "keyboard.hold":
+        key = params.get("key", None)
+        if key:
+            keyboard_helper_api.hold_key(key=key)
+    elif action == "keyboard.press":
+        key = params.get("key", None)
+        if key:
+            duration_seconds = params.get("duration_seconds", 0)
+            keyboard_helper_api.press_key(key=key, duration_seconds=duration_seconds)
+    elif action == "keyboard.release":
+        key = params.get("key", None)
+        if key:
+            keyboard_helper_api.release_key(key=key)
 
-    tts_api.speak(engine_id=TEXT_TO_SPEECH_VOICE_ENGINE_ID, message=answer, speed=1.1)
+    # tts_api.speak(engine_id=TEXT_TO_SPEECH_VOICE_ENGINE_ID, message=answer, speed=1.1)
 
     model = None  # Free up resources
-    break
+    # break
