@@ -20,7 +20,7 @@ services:
     container_name: laravel-backend
     restart: unless-stopped
     ports:
-      - "${APP_PORT:-8000}:${APP_PORT:-8000}"
+      - "${APP_PORT:-6803}:${APP_PORT:-6803}"
     volumes:
       - .:/app
     depends_on:
@@ -32,7 +32,7 @@ services:
       - DB_DATABASE=laravel
       - DB_USERNAME=laravel
       - DB_PASSWORD=password
-      - APP_PORT=${APP_PORT:-8000}
+      - APP_PORT=${APP_PORT:-6803}
 
   db:
     image: mysql:8.0

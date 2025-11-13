@@ -19,7 +19,7 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
-ENV APP_PORT=8000
+ENV APP_PORT=6803
 
 EXPOSE $APP_PORT
 
