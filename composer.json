@@ -59,6 +59,8 @@
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
         ],
+        "pint": "./vendor/bin/pint",
+        "pint:fix": "./vendor/bin/pint --fix",
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
