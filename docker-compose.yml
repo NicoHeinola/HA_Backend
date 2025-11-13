@@ -14,3 +14,39 @@ services:
     devices:
       - ${ZIGBEE_DEVICE:-/dev/ttyUSB0}:${ZIGBEE_DEVICE:-/dev/ttyUSB0} # Sonoff Zigbee 3.0 USB adapter
     network_mode: host
+
+  laravel-backend:
+    build: .
+    container_name: laravel-backend
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:${APP_PORT:-8000}"
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=laravel
+      - DB_USERNAME=laravel
+      - DB_PASSWORD=password
+      - APP_PORT=${APP_PORT:-8000}
+
+  db:
+    image: mysql:8.0
+    container_name: laravel-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
