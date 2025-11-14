@@ -82,13 +82,10 @@ class RunActionJob implements ShouldQueue
         $entityIds = $params['entity_ids'] ?? [];
         $wizHelper = $this->getWiZHelper();
 
-        Log::info('Handling turn off lights action.', ['entity_ids' => $entityIds]);
         if (empty($entityIds)) {
             Log::info('No entity IDs provided, fetching all available lights.');
             $entityIds = $wizHelper->getAllAvailableLights();
         }
-
-        Log::info('Turning off lights.', ['entity_ids' => $entityIds]);
 
         foreach ($entityIds as $entityId) {
             $wizHelper->turnOff($entityId);
