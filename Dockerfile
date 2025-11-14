@@ -7,7 +7,8 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     zip \
-    unzip
+    unzip \
+    supervisor
 
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
@@ -17,10 +18,12 @@ WORKDIR /app
 
 COPY . .
 
+COPY supervisord.conf /etc/supervisor/supervisord.conf
+
 RUN composer install --no-dev --optimize-autoloader
 
 ENV APP_PORT=6803
 
 EXPOSE $APP_PORT
 
-CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=$APP_PORT"]
+CMD ["supervisord"]
