@@ -94,4 +94,33 @@ class WiZLightHelper extends HomeAssistantAPI
 
         return null;
     }
+
+    public function getAllAvailableLights(): array
+    {
+        $headers = $this->getAuthorizationHeader();
+        $url = $this->haUrl.'/api/states';
+        $response = $this->client->get($url, [
+            'headers' => $headers,
+        ]);
+
+        if ($response->getStatusCode() !== 200) {
+            return [];
+        }
+
+        $states = json_decode($response->getBody()->getContents(), true);
+        $lights = [];
+        foreach ($states as $state) {
+            $stateEntityId = $state['entity_id'] ?? '';
+
+            // Remove light. prefix
+            if (mb_strpos($stateEntityId, 'light.') !== 0) {
+                continue;
+            }
+            $stateEntityId = str_replace('light.', '', $stateEntityId);
+
+            $lights[] = $stateEntityId;
+        }
+
+        return $lights;
+    }
 }
