@@ -19,34 +19,25 @@ services:
     build: .
     container_name: laravel-backend
     restart: unless-stopped
-    ports:
-      - "${APP_PORT:-6803}:${APP_PORT:-6803}"
+    env_file:
+      - .env
     volumes:
       - .:/app
     depends_on:
       - db
-    environment:
-      - DB_CONNECTION=mysql
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_DATABASE=laravel
-      - DB_USERNAME=laravel
-      - DB_PASSWORD=password
-      - APP_PORT=${APP_PORT:-6803}
+    network_mode: host
 
   db:
     image: mysql:8.0
     container_name: laravel-db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: laravel
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: rootpassword
-    ports:
-      - "3306:3306"
+      MYSQL_PORT: ${DB_PORT}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
+    network_mode: host
 
 volumes:
   db_data:

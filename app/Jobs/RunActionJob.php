@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Helpers\WiZ\WiZLightHelper;
@@ -16,6 +18,42 @@ class RunActionJob implements ShouldQueue
     public function __construct(array $action)
     {
         $this->action = $action;
+    }
+
+    public function handle(): void
+    {
+        $actionName = $this->action['name'] ?? null;
+        if (!$actionName) {
+            Log::warning('Action name is missing.');
+
+            return;
+        }
+
+        Log::info("Executing action: {$actionName}");
+
+        switch ($actionName) {
+            case 'lights.turn_on':
+                $this->handleTurnOnLights();
+                break;
+            case 'lights.turn_off':
+                $this->handleTurnOffLights();
+                break;
+            case 'lights.toggle':
+                $this->handleToggleLights();
+                break;
+            case 'lights.set_rgb_color':
+                $this->handleSetRgbColor();
+                break;
+            case 'lights.set_brightness':
+                $this->handleSetBrightness();
+                break;
+            case 'lights.get_state':
+                $this->handleGetLightState();
+                break;
+            default:
+                Log::warning("Unknown action: {$actionName}");
+                break;
+        }
     }
 
     private function getWiZHelper(): WiZLightHelper
@@ -98,40 +136,6 @@ class RunActionJob implements ShouldQueue
         foreach ($entityIds as $entityId) {
             $state = $wizHelper->getLightState($entityId);
             Log::info('WiZ light state', ['entity_id' => $entityId, 'state' => $state]);
-        }
-    }
-
-    public function handle(): void
-    {
-        $actionName = $this->action['name'] ?? null;
-        if (! $actionName) {
-            Log::warning('Action name is missing.');
-
-            return;
-        }
-
-        switch ($actionName) {
-            case 'lights.turn_on':
-                $this->handleTurnOnLights();
-                break;
-            case 'lights.turn_off':
-                $this->handleTurnOffLights();
-                break;
-            case 'lights.toggle':
-                $this->handleToggleLights();
-                break;
-            case 'lights.set_rgb_color':
-                $this->handleSetRgbColor();
-                break;
-            case 'lights.set_brightness':
-                $this->handleSetBrightness();
-                break;
-            case 'lights.get_state':
-                $this->handleGetLightState();
-                break;
-            default:
-                Log::warning("Unknown action: {$actionName}");
-                break;
         }
     }
 }
