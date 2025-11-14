@@ -77,6 +77,9 @@ class RunActionJob implements ShouldQueue
                 return;
             }
 
+            // Make the audio more "human like"
+            $audioData = $audioBackendAPI->speedUpAudio($audioData, 1.20);
+
             $audioPlaybackBackendAPI = new AudioPlaybackBackendAPI;
             $audioPlaybackBackendAPI->playAudio($audioData);
         } catch (Exception $e) {

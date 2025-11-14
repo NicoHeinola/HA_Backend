@@ -43,4 +43,36 @@ class AudioBackendAPI
 
         return $response->getBody()->getContents();
     }
+
+    public function speedUpAudio(string $audioData, float $speedFactor): ?string
+    {
+        $headers = [
+            'Authorization' => 'Bearer '.$this->audioBackendToken,
+            'Accept' => 'application/octet-stream',
+        ];
+
+        $client = new Client;
+        $url = $this->audioBackendUrl.'/mixer/speed-up';
+        $response = $client->post($url, [
+            'headers' => $headers,
+            'multipart' => [
+                [
+                    'name' => 'file',
+                    'contents' => $audioData,
+                    'filename' => 'audio',
+                ],
+                [
+                    'name' => 'speed',
+                    'contents' => (string) $speedFactor,
+                ],
+            ],
+            'http_errors' => false,
+        ]);
+
+        if ($response->getStatusCode() !== 200) {
+            return null;
+        }
+
+        return $response->getBody()->getContents();
+    }
 }
