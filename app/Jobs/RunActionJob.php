@@ -18,16 +18,19 @@ class RunActionJob implements ShouldQueue
         $this->action = $action;
     }
 
+    private function getWiZHelper(): WiZLightHelper
+    {
+        return new WiZLightHelper(
+            config('services.home_assistant.url'),
+            config('services.home_assistant.access_token')
+        );
+    }
+
     private function handleTurnOnLights(): void
     {
         $params = $this->action['params'] ?? [];
         $entityIds = $params['entity_ids'] ?? [];
-
-        $wizHelper = new WiZLightHelper(
-            config('services.home_assistant.url'),
-            config('services.home_assistant.access_token')
-        );
-
+        $wizHelper = $this->getWiZHelper();
         foreach ($entityIds as $entityId) {
             $wizHelper->turnOn($entityId);
         }
@@ -37,14 +40,64 @@ class RunActionJob implements ShouldQueue
     {
         $params = $this->action['params'] ?? [];
         $entityIds = $params['entity_ids'] ?? [];
-
-        $wizHelper = new WiZLightHelper(
-            config('services.home_assistant.url'),
-            config('services.home_assistant.access_token')
-        );
-
+        $wizHelper = $this->getWiZHelper();
         foreach ($entityIds as $entityId) {
             $wizHelper->turnOff($entityId);
+        }
+    }
+
+    private function handleToggleLights(): void
+    {
+        $params = $this->action['params'] ?? [];
+        $entityIds = $params['entity_ids'] ?? [];
+        $wizHelper = $this->getWiZHelper();
+        foreach ($entityIds as $entityId) {
+            $wizHelper->toggle($entityId);
+        }
+    }
+
+    private function handleSetRgbColor(): void
+    {
+        $params = $this->action['params'] ?? [];
+        $entityIds = $params['entity_ids'] ?? [];
+        $r = $params['r'] ?? null;
+        $g = $params['g'] ?? null;
+        $b = $params['b'] ?? null;
+        if ($r === null || $g === null || $b === null) {
+            Log::warning('RGB values are missing for setRgbColor action.');
+
+            return;
+        }
+        $wizHelper = $this->getWiZHelper();
+        foreach ($entityIds as $entityId) {
+            $wizHelper->setRgbColor($entityId, $r, $g, $b);
+        }
+    }
+
+    private function handleSetBrightness(): void
+    {
+        $params = $this->action['params'] ?? [];
+        $entityIds = $params['entity_ids'] ?? [];
+        $brightness = $params['brightness'] ?? null;
+        if ($brightness === null) {
+            Log::warning('Brightness value is missing for setBrightness action.');
+
+            return;
+        }
+        $wizHelper = $this->getWiZHelper();
+        foreach ($entityIds as $entityId) {
+            $wizHelper->setBrightness($entityId, $brightness);
+        }
+    }
+
+    private function handleGetLightState(): void
+    {
+        $params = $this->action['params'] ?? [];
+        $entityIds = $params['entity_ids'] ?? [];
+        $wizHelper = $this->getWiZHelper();
+        foreach ($entityIds as $entityId) {
+            $state = $wizHelper->getLightState($entityId);
+            Log::info('WiZ light state', ['entity_id' => $entityId, 'state' => $state]);
         }
     }
 
@@ -61,13 +114,21 @@ class RunActionJob implements ShouldQueue
             case 'lights.turn_on':
                 $this->handleTurnOnLights();
                 break;
-
             case 'lights.turn_off':
                 $this->handleTurnOffLights();
                 break;
-
-                // Add more cases for different actions as needed
-
+            case 'lights.toggle':
+                $this->handleToggleLights();
+                break;
+            case 'lights.set_rgb_color':
+                $this->handleSetRgbColor();
+                break;
+            case 'lights.set_brightness':
+                $this->handleSetBrightness();
+                break;
+            case 'lights.get_state':
+                $this->handleGetLightState();
+                break;
             default:
                 Log::warning("Unknown action: {$actionName}");
                 break;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Helpers\WiZ;
 
 use App\Helpers\HomeAssistantAPI;
@@ -34,7 +36,17 @@ class WiZLightHelper extends HomeAssistantAPI
     {
         $lightState = $this->getLightState($entityId);
 
-        Log::info('Current light state: ', ['state' => $lightState]);
+        if (!$lightState || !isset($lightState['state'])) {
+            Log::warning('Unable to retrieve light state for toggle.', ['entity_id' => $entityId]);
+
+            return false;
+        }
+
+        if ($lightState['state'] === 'on') {
+            $this->turnOff($entityId);
+        } else {
+            $this->turnOn($entityId);
+        }
 
         return true;
     }
