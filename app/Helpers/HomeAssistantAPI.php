@@ -57,9 +57,11 @@ class HomeAssistantAPI
 
         $url = $this->haUrl."/api/services/{$domain}/{$service}";
 
-        return $this->client->post($url, [
+        $response = $this->client->post($url, [
             'json' => $payload,
             'headers' => $headers,
         ]);
+
+        return $response;
     }
 }

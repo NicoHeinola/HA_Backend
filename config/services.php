@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'home_assistant' => [
+        'url' => env('HOME_ASSISTANT_URL'),
+        'access_token' => env('HOME_ASSISTANT_ACCESS_TOKEN'),
+    ],
 ];

@@ -3,6 +3,7 @@
 namespace App\Helpers\WiZ;
 
 use App\Helpers\HomeAssistantAPI;
+use Illuminate\Support\Facades\Log;
 
 class WiZLightHelper extends HomeAssistantAPI
 {
@@ -33,9 +34,8 @@ class WiZLightHelper extends HomeAssistantAPI
     {
         $lightState = $this->getLightState($entityId);
 
-        // You can add logic here to actually toggle based on state
-        // For now, just print and return true
-        // error_log('STATE RESPONSE: ' . print_r($lightState, true));
+        Log::info('Current light state: ', ['state' => $lightState]);
+
         return true;
     }
 
