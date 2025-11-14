@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -38,5 +40,17 @@ return [
     'home_assistant' => [
         'url' => env('HOME_ASSISTANT_URL'),
         'access_token' => env('HOME_ASSISTANT_ACCESS_TOKEN'),
+    ],
+
+    'audio_backend' => [
+        'url' => env('AUDIO_BACKEND_HOST'),
+        'port' => env('AUDIO_BACKEND_PORT'),
+        'access_token' => env('AUDIO_BACKEND_TOKEN'),
+    ],
+
+    'audio_playback_backend' => [
+        'url' => env('AUDIO_PLAYBACK_BACKEND_HOST'),
+        'port' => env('AUDIO_PLAYBACK_BACKEND_PORT'),
+        'access_token' => env('AUDIO_PLAYBACK_BACKEND_TOKEN'),
     ],
 ];

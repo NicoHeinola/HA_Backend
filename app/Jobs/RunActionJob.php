@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Helpers\WiZ\WiZLightHelper;
+use App\Helpers\API\AudioBackendAPI;
+use App\Helpers\API\AudioPlaybackBackendAPI;
+use App\Helpers\API\WiZ\WiZLightHelper;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -15,9 +17,12 @@ class RunActionJob implements ShouldQueue
 
     protected array $action;
 
-    public function __construct(array $action)
+    protected ?string $aiAnswer;
+
+    public function __construct(array $action, ?string $aiAnswer = null)
     {
         $this->action = $action;
+        $this->aiAnswer = $aiAnswer;
     }
 
     public function handle(): void
@@ -51,6 +56,27 @@ class RunActionJob implements ShouldQueue
                 Log::warning("Unknown action: {$actionName}");
                 break;
         }
+
+        $this->playbackAIAnswer();
+    }
+
+    private function playbackAIAnswer(): void
+    {
+        if (!$this->aiAnswer) {
+            return;
+        }
+
+        $audioBackendAPI = new AudioBackendAPI;
+        $audioData = $audioBackendAPI->convertTextToSpeech($this->aiAnswer);
+
+        if (!$audioData) {
+            Log::warning('Failed to convert AI answer to speech.');
+
+            return;
+        }
+
+        $audioPlaybackBackendAPI = new AudioPlaybackBackendAPI;
+        $audioPlaybackBackendAPI->playAudio($audioData);
     }
 
     private function getWiZHelper(): WiZLightHelper

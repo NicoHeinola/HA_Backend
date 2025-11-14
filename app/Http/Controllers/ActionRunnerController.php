@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ActionRunner\RunActionRequest;
@@ -12,7 +14,7 @@ class ActionRunnerController extends Controller
     {
         $data = $request->validated();
 
-        RunActionJob::dispatch($data['action']);
+        RunActionJob::dispatch($data['action'], $data['ai_answer'] ?? null);
 
         return Response::HTTP_OK;
     }

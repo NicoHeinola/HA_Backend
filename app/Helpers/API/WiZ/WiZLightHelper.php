@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Helpers\WiZ;
+namespace App\Helpers\API\WiZ;
 
-use App\Helpers\HomeAssistantAPI;
+use App\Helpers\API\HomeAssistantAPI;
 use Illuminate\Support\Facades\Log;
 
 class WiZLightHelper extends HomeAssistantAPI
