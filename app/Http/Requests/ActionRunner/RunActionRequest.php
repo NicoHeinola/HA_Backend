@@ -10,6 +10,9 @@ class RunActionRequest extends FormRequest
     {
         return [
             'action' => ['required', 'array'],
+            'action.name' => ['required', 'string'],
+            'action.ai_answer' => ['sometimes', 'string'],
+            'action.params' => ['sometimes', 'array'],
         ];
     }
 }
