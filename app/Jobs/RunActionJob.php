@@ -47,9 +47,6 @@ class RunActionJob implements ShouldQueue
             case 'lights.set_brightness':
                 $this->handleSetBrightness();
                 break;
-            case 'lights.get_state':
-                $this->handleGetLightState();
-                break;
             default:
                 Log::warning("Unknown action: {$actionName}");
                 break;
@@ -124,18 +121,7 @@ class RunActionJob implements ShouldQueue
         }
         $wizHelper = $this->getWiZHelper();
         foreach ($entityIds as $entityId) {
-            $wizHelper->setBrightness($entityId, $brightness);
-        }
-    }
-
-    private function handleGetLightState(): void
-    {
-        $params = $this->action['params'] ?? [];
-        $entityIds = $params['entity_ids'] ?? [];
-        $wizHelper = $this->getWiZHelper();
-        foreach ($entityIds as $entityId) {
-            $state = $wizHelper->getLightState($entityId);
-            Log::info('WiZ light state', ['entity_id' => $entityId, 'state' => $state]);
+            $wizHelper->setBrightness($entityId, (int) $brightness);
         }
     }
 }
