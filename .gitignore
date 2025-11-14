@@ -23,6 +23,7 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+supervisord.pid
 
 # Home Assistant specific
 /home_assistant_config/*
