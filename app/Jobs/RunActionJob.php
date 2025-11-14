@@ -35,6 +35,8 @@ class RunActionJob implements ShouldQueue
             return;
         }
 
+        $this->playbackAIAnswer();
+
         Log::info("Executing action: {$actionName}");
 
         switch ($actionName) {
@@ -57,8 +59,6 @@ class RunActionJob implements ShouldQueue
                 Log::warning("Unknown action: {$actionName}");
                 break;
         }
-
-        $this->playbackAIAnswer();
     }
 
     private function playbackAIAnswer(): void
