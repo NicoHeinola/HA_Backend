@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Helpers\API\AudioBackendAPI;
 use App\Helpers\API\AudioPlaybackBackendAPI;
 use App\Helpers\API\WiZ\WiZLightHelper;
+use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -66,17 +67,21 @@ class RunActionJob implements ShouldQueue
             return;
         }
 
-        $audioBackendAPI = new AudioBackendAPI;
-        $audioData = $audioBackendAPI->convertTextToSpeech($this->aiAnswer);
+        try {
+            $audioBackendAPI = new AudioBackendAPI;
+            $audioData = $audioBackendAPI->convertTextToSpeech($this->aiAnswer);
 
-        if (!$audioData) {
-            Log::warning('Failed to convert AI answer to speech.');
+            if (!$audioData) {
+                Log::warning('Failed to convert AI answer to speech.');
 
-            return;
+                return;
+            }
+
+            $audioPlaybackBackendAPI = new AudioPlaybackBackendAPI;
+            $audioPlaybackBackendAPI->playAudio($audioData);
+        } catch (Exception $e) {
+            Log::error('Error during AI answer playback: '.$e->getMessage());
         }
-
-        $audioPlaybackBackendAPI = new AudioPlaybackBackendAPI;
-        $audioPlaybackBackendAPI->playAudio($audioData);
     }
 
     private function getWiZHelper(): WiZLightHelper

@@ -8,16 +8,13 @@ use GuzzleHttp\Client;
 
 class AudioBackendAPI
 {
-    protected string $audioBackendHost;
-
-    protected string $audioBackendPort;
+    protected string $audioBackendUrl;
 
     protected string $audioBackendToken;
 
     public function __construct()
     {
-        $this->audioBackendHost = config('services.audio_backend.url');
-        $this->audioBackendPort = config('services.audio_backend.port');
+        $this->audioBackendUrl = rtrim(config('services.audio_backend.url'), '/');
         $this->audioBackendToken = config('services.audio_backend.access_token');
     }
 
@@ -34,9 +31,7 @@ class AudioBackendAPI
         ];
 
         $client = new Client;
-
-        $url = rtrim($this->audioBackendHost, '/').':'.$this->audioBackendPort.'/text-to-speech';
-
+        $url = $this->audioBackendUrl.'/text-to-speech';
         $response = $client->post($url, [
             'headers' => $headers,
             'json' => $payload,

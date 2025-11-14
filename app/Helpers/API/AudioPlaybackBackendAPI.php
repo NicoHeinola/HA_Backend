@@ -8,16 +8,13 @@ use GuzzleHttp\Client;
 
 class AudioPlaybackBackendAPI
 {
-    protected string $audioPlaybackBackendHost;
-
-    protected string $audioPlaybackBackendPort;
+    protected string $audioPlaybackBackendUrl;
 
     protected string $audioPlaybackBackendToken;
 
     public function __construct()
     {
-        $this->audioPlaybackBackendHost = config('services.audio_playback_backend.url');
-        $this->audioPlaybackBackendPort = config('services.audio_playback_backend.port');
+        $this->audioPlaybackBackendUrl = rtrim(config('services.audio_playback_backend.url'), '/');
         $this->audioPlaybackBackendToken = config('services.audio_playback_backend.access_token');
     }
 
@@ -25,11 +22,7 @@ class AudioPlaybackBackendAPI
     {
 
         $client = new Client;
-
-        $url = rtrim($this->audioPlaybackBackendHost, '/')
-            .':'.$this->audioPlaybackBackendPort
-            .'/audio-playback/play-audio';
-
+        $url = $this->audioPlaybackBackendUrl.'/audio-playback/play-audio';
         $response = $client->post($url, [
             'headers' => [
                 'Authorization' => 'Bearer '.$this->audioPlaybackBackendToken,

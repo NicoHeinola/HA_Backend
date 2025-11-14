@@ -43,14 +43,12 @@ return [
     ],
 
     'audio_backend' => [
-        'url' => env('AUDIO_BACKEND_HOST'),
-        'port' => env('AUDIO_BACKEND_PORT'),
+        'url' => env('AUDIO_BACKEND_URL'),
         'access_token' => env('AUDIO_BACKEND_TOKEN'),
     ],
 
     'audio_playback_backend' => [
-        'url' => env('AUDIO_PLAYBACK_BACKEND_HOST'),
-        'port' => env('AUDIO_PLAYBACK_BACKEND_PORT'),
+        'url' => env('AUDIO_PLAYBACK_BACKEND_URL'),
         'access_token' => env('AUDIO_PLAYBACK_BACKEND_TOKEN'),
     ],
 ];
