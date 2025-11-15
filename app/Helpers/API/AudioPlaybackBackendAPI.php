@@ -21,7 +21,7 @@ class AudioPlaybackBackendAPI
     public function playAudio(string $audioData): array
     {
 
-        $client = new Client;
+        $client = new Client(['timeout' => 3]);
         $url = $this->audioPlaybackBackendUrl.'/audio-playback/play-audio';
         $response = $client->post($url, [
             'headers' => [
@@ -36,7 +36,7 @@ class AudioPlaybackBackendAPI
                 ],
             ],
             'http_errors' => false,
-        ]);
+        ], );
 
         // decode/return as above
         $body = (string) $response->getBody();

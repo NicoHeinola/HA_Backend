@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Helpers\API\AudioBackendAPI;
-use App\Helpers\API\AudioPlaybackBackendAPI;
 use App\Helpers\API\WiZ\WiZLightHelper;
-use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -35,7 +32,10 @@ class RunActionJob implements ShouldQueue
             return;
         }
 
-        $this->playbackAIAnswer();
+        // Dispatch playback of AI answer as a separate job
+        if ($this->aiAnswer) {
+            dispatch(new PlaybackAIAnswerJob($this->aiAnswer));
+        }
 
         Log::info("Executing action: {$actionName}");
 
@@ -58,32 +58,6 @@ class RunActionJob implements ShouldQueue
             default:
                 Log::warning("Unknown action: {$actionName}");
                 break;
-        }
-    }
-
-    private function playbackAIAnswer(): void
-    {
-        if (!$this->aiAnswer) {
-            return;
-        }
-
-        try {
-            $audioBackendAPI = new AudioBackendAPI;
-            $audioData = $audioBackendAPI->convertTextToSpeech($this->aiAnswer);
-
-            if (!$audioData) {
-                Log::warning('Failed to convert AI answer to speech.');
-
-                return;
-            }
-
-            // Make the audio more "human like"
-            $audioData = $audioBackendAPI->speedUpAudio($audioData, 1.20);
-
-            $audioPlaybackBackendAPI = new AudioPlaybackBackendAPI;
-            $audioPlaybackBackendAPI->playAudio($audioData);
-        } catch (Exception $e) {
-            Log::error('Error during AI answer playback: '.$e->getMessage());
         }
     }
 
