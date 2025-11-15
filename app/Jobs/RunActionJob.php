@@ -25,17 +25,12 @@ class RunActionJob implements ShouldQueue
 
     public function handle(): void
     {
-        $actionName = $this->action['name'] ?? null;
-        if (!$actionName) {
-            Log::warning('Action name is missing.');
-
-            return;
-        }
-
         // Dispatch playback of AI answer as a separate job
         if ($this->aiAnswer) {
             dispatch(new PlaybackAIAnswerJob($this->aiAnswer));
         }
+
+        $actionName = $this->action['name'] ?? '';
 
         Log::info("Executing action: {$actionName}");
 
