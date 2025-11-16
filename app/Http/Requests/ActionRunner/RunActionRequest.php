@@ -11,7 +11,7 @@ class RunActionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'nullable', 'string'],
+            'action' => ['required', 'string'],
             'params' => ['sometimes', 'nullable', 'array'],
         ];
     }
