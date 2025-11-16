@@ -25,8 +25,6 @@ class RunActionJob implements ShouldQueue
 
     public function handle(): void
     {
-        // AI answer playback is now handled via a separate route.
-
         $actionName = $this->action['name'] ?? '';
 
         Log::info("Executing action: {$actionName}");
