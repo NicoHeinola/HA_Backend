@@ -13,11 +13,11 @@ class RunActionJob implements ShouldQueue
 {
     use Queueable;
 
-    protected array $actionName;
+    protected string $actionName;
 
     protected array $actionParams;
 
-    public function __construct(array $actionName, array $actionParams = [])
+    public function __construct(string $actionName, array $actionParams = [])
     {
         $this->actionName = $actionName;
         $this->actionParams = $actionParams;
@@ -25,11 +25,9 @@ class RunActionJob implements ShouldQueue
 
     public function handle(): void
     {
-        $actionName = $this->actionName['name'] ?? '';
+        Log::info("Executing action: {$this->actionName}");
 
-        Log::info("Executing action: {$actionName}");
-
-        switch ($actionName) {
+        switch ($this->actionName) {
             case 'lights.turn_on':
                 $this->handleTurnOnLights();
                 break;
@@ -46,7 +44,7 @@ class RunActionJob implements ShouldQueue
                 $this->handleSetBrightness();
                 break;
             default:
-                Log::warning("Unknown action: {$actionName}");
+                Log::warning("Unknown action: {$this->actionName}");
                 break;
         }
     }
