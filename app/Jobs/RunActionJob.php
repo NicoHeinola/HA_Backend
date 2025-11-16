@@ -25,10 +25,7 @@ class RunActionJob implements ShouldQueue
 
     public function handle(): void
     {
-        // Dispatch playback of AI answer as a separate job
-        if ($this->aiAnswer) {
-            dispatch(new PlaybackAIAnswerJob($this->aiAnswer));
-        }
+        // AI answer playback is now handled via a separate route.
 
         $actionName = $this->action['name'] ?? '';
 
