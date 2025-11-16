@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AIPlaybackRequest;
+use App\Http\Requests\AIPlayback\AIPlaybackRequest;
 use App\Jobs\PlaybackAIAnswerJob;
 use Illuminate\Http\JsonResponse;
 

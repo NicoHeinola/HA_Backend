@@ -13,16 +13,19 @@ class RunActionJob implements ShouldQueue
 {
     use Queueable;
 
-    protected array $action;
+    protected array $actionName;
 
-    public function __construct(array $action)
+    protected array $actionParams;
+
+    public function __construct(array $actionName, array $actionParams = [])
     {
-        $this->action = $action;
+        $this->actionName = $actionName;
+        $this->actionParams = $actionParams;
     }
 
     public function handle(): void
     {
-        $actionName = $this->action['name'] ?? '';
+        $actionName = $this->actionName['name'] ?? '';
 
         Log::info("Executing action: {$actionName}");
 
@@ -58,8 +61,7 @@ class RunActionJob implements ShouldQueue
 
     private function handleTurnOnLights(): void
     {
-        $params = $this->action['params'] ?? [];
-        $entityIds = $params['entity_ids'] ?? [];
+        $entityIds = $this->actionParams['entity_ids'] ?? [];
         $wizHelper = $this->getWiZHelper();
 
         if (empty($entityIds)) {
@@ -73,8 +75,8 @@ class RunActionJob implements ShouldQueue
 
     private function handleTurnOffLights(): void
     {
-        $params = $this->action['params'] ?? [];
-        $entityIds = $params['entity_ids'] ?? [];
+
+        $entityIds = $this->actionParams['entity_ids'] ?? [];
         $wizHelper = $this->getWiZHelper();
 
         if (empty($entityIds)) {
@@ -89,8 +91,8 @@ class RunActionJob implements ShouldQueue
 
     private function handleToggleLights(): void
     {
-        $params = $this->action['params'] ?? [];
-        $entityIds = $params['entity_ids'] ?? [];
+
+        $entityIds = $this->actionParams['entity_ids'] ?? [];
         $wizHelper = $this->getWiZHelper();
 
         if (empty($entityIds)) {
@@ -104,11 +106,11 @@ class RunActionJob implements ShouldQueue
 
     private function handleSetRgbColor(): void
     {
-        $params = $this->action['params'] ?? [];
-        $entityIds = $params['entity_ids'] ?? [];
-        $r = $params['r'] ?? null;
-        $g = $params['g'] ?? null;
-        $b = $params['b'] ?? null;
+
+        $entityIds = $this->actionParams['entity_ids'] ?? [];
+        $r = $this->actionParams['r'] ?? null;
+        $g = $this->actionParams['g'] ?? null;
+        $b = $this->actionParams['b'] ?? null;
 
         if ($r === null || $g === null || $b === null) {
             Log::warning('RGB values are missing for setRgbColor action.');
@@ -129,9 +131,9 @@ class RunActionJob implements ShouldQueue
 
     private function handleSetBrightness(): void
     {
-        $params = $this->action['params'] ?? [];
-        $entityIds = $params['entity_ids'] ?? [];
-        $brightness = $params['brightness'] ?? null;
+
+        $entityIds = $this->actionParams['entity_ids'] ?? [];
+        $brightness = $this->actionParams['brightness'] ?? null;
 
         if ($brightness === null) {
             Log::warning('Brightness value is missing for setBrightness action.');
