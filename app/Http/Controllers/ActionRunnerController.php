@@ -14,7 +14,7 @@ class ActionRunnerController extends Controller
     {
         $data = $request->validated();
 
-        RunActionJob::dispatch($data['action'], $data['ai_answer'] ?? null);
+        RunActionJob::dispatch($data['action']);
 
         return Response::HTTP_OK;
     }

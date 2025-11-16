@@ -15,12 +15,9 @@ class RunActionJob implements ShouldQueue
 
     protected array $action;
 
-    protected ?string $aiAnswer;
-
-    public function __construct(array $action, ?string $aiAnswer = null)
+    public function __construct(array $action)
     {
         $this->action = $action;
-        $this->aiAnswer = $aiAnswer;
     }
 
     public function handle(): void

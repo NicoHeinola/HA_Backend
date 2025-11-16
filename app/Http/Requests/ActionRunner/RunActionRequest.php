@@ -14,8 +14,6 @@ class RunActionRequest extends FormRequest
             'action' => ['required', 'array'],
             'action.name' => ['sometimes', 'nullable', 'string'],
             'action.params' => ['sometimes', 'nullable', 'array'],
-
-            'ai_answer' => ['sometimes', 'nullable', 'string'],
         ];
     }
 }
