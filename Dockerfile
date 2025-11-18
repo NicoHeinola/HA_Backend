@@ -21,7 +21,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev 
 
 # 3. Copy application source
 FROM base AS app
