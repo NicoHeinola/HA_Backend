@@ -26,7 +26,7 @@ services:
     ports:
       - "${APP_PORT}:8000"
     networks:
-      - laravel-network
+      - ha-network
 
   db:
     image: mysql:8.0
@@ -41,10 +41,10 @@ services:
     ports:
       - "${DB_PORT}:3306"
     networks:
-      - laravel-network
+      - ha-network
 
 networks:
-  laravel-network:
+  ha-network:
     driver: bridge
 
 volumes:
