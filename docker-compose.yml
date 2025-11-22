@@ -23,6 +23,8 @@ services:
       - db
     ports:
       - "${APP_PORT}:8000"
+    volumes:
+      - ./storage/logs:/app/storage/logs
     networks:
       - ha-network
 
