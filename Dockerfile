@@ -21,11 +21,13 @@ WORKDIR /app
 
 COPY . .
 
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev 
 
 # 3. Copy application source
 FROM base AS app
 WORKDIR /app
 COPY supervisord.conf /etc/supervisor/supervisord.conf
+COPY --from=composer /app/vendor ./vendor
+COPY --from=composer /app/ ./
 
 CMD ["bash", "-c", "php artisan migrate --force && exec supervisord"]

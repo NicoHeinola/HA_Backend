@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   home-assistant:
     image: ghcr.io/home-assistant/home-assistant:latest
@@ -21,23 +19,31 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    volumes:
-      - .:/app
     depends_on:
       - db
-    network_mode: host
+    ports:
+      - "${APP_PORT}:8000"
+    networks:
+      - ha-network
 
   db:
     image: mysql:8.0
     container_name: laravel-db
     restart: unless-stopped
     environment:
-      MYSQL_PORT: ${DB_PORT}
+      MYSQL_PORT: 3306
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
-    network_mode: host
+    ports:
+      - "${DB_PORT}:3306"
+    networks:
+      - ha-network
+
+networks:
+  ha-network:
+    driver: bridge
 
 volumes:
   db_data:
