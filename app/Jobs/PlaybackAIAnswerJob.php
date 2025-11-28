@@ -30,19 +30,30 @@ class PlaybackAIAnswerJob implements ShouldQueue
             $audioBackendAPI = new AudioBackendAPI;
             $audioData = $audioBackendAPI->convertTextToSpeech($this->aiAnswer);
 
-            if (!$audioData) {
-                Log::warning('Failed to convert AI answer to speech.');
-
-                return;
-            }
-
             // Make the audio more "human like"
             $audioData = $audioBackendAPI->speedUpAudio($audioData, 1.20);
+        } catch (Exception $e) {
+            Log::error('Error during TTS conversion: '.$e->getMessage());
 
+            return;
+        }
+
+        if (!$audioData) {
+            Log::warning('Failed to convert AI answer to speech.');
+
+            return;
+        }
+
+        try {
             $audioPlaybackBackendAPI = new AudioPlaybackBackendAPI;
             $audioPlaybackBackendAPI->playAudio($audioData);
         } catch (Exception $e) {
-            Log::error('Error during AI answer playback: '.$e->getMessage());
+            Log::error('Error during audio playback: '.$e->getMessage());
+
+            return;
         }
+
+        Log::info('AI answer playback completed.');
+
     }
 }
