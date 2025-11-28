@@ -24,7 +24,7 @@ class PlaybackAIAnswerJob implements ShouldQueue
 
     public function handle(): void
     {
-        Log::info('Playing AI answer.');
+        Log::info('Playing AI answer: '.$this->aiAnswer);
 
         try {
             $audioBackendAPI = new AudioBackendAPI;

@@ -14,12 +14,16 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 # 2. Install Composer dependencies
-
-FROM base AS composer
+FROM base AS composer-install
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 
-COPY . .
+# Copy composer files and artisan needed for post-install scripts
+COPY composer.json composer.lock artisan ./
+COPY bootstrap ./bootstrap
+COPY config ./config
+COPY database ./database
+COPY routes ./routes
 
 RUN composer install --no-dev 
 
@@ -27,7 +31,7 @@ RUN composer install --no-dev
 FROM base AS app
 WORKDIR /app
 COPY supervisord.conf /etc/supervisor/supervisord.conf
-COPY --from=composer /app/vendor ./vendor
-COPY --from=composer /app/ ./
+COPY --from=composer-install /app/vendor ./vendor
+COPY . .
 
 CMD ["bash", "-c", "php artisan migrate --force && exec supervisord"]
